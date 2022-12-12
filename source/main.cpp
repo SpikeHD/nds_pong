@@ -21,6 +21,7 @@ u32 kdr() {
 	return keysHeld();
 }
 
+/* Controls section */
 bool leftUp() {
 	return kdr() & KEY_UP;
 }
@@ -37,6 +38,7 @@ bool rightDown() {
 	return kdr() & KEY_Y;
 }
 
+// Game
 int main(void) {
 	int playPosX = 10, playPosY = 0;
 	int opPosX = SCR_MAX_X - 10, opPosY = 0;
@@ -54,7 +56,7 @@ int main(void) {
 	int ballVelX = -coreVel, ballVelY = coreVel;
 
 	// Store touch position
-	touchPosition touchXY;
+	// touchPosition touchXY;
 	irqSet(IRQ_VBLANK, Vblank);
 
 	videoSetMode(MODE_5_3D);
@@ -66,10 +68,11 @@ int main(void) {
 	ballX = SCR_MAX_X / 2;
 	ballY = SCR_MAX_Y / 2;
 
+	// Game loop
 	while(true) {
 		glBegin2D();
 
-		touchRead(&touchXY);
+		// touchRead(&touchXY);
 
 		// Get inputs
 		scanKeys();
