@@ -4,9 +4,6 @@
 #include <stdio.h>
 #include <string.h>
 
-// SimpleNFL namespace
-using namespace SNF;
-
 #define SCR_MAX_X 250
 #define SCR_MAX_Y 190
 
@@ -20,20 +17,24 @@ bool between(int num, int min, int max) {
 	return min <= num && num <= max;
 }
 
+u32 kdr() {
+	return keysHeld();
+}
+
 bool leftUp() {
-	return getKeys(KEY_UP, KeyPhase::held);
+	return kdr() & KEY_UP;
 }
 
 bool leftDown() {
-	return getKeys(KEY_DOWN, KeyPhase::held);
+	return kdr() & KEY_DOWN;
 }
 
 bool rightUp() {
-	return getKeys(KEY_X, KeyPhase::held);
+	return kdr() & KEY_X;
 }
 
 bool rightDown() {
-	return getKeys(KEY_B, KeyPhase::held);
+	return kdr() & KEY_Y;
 }
 
 int main(void) {
@@ -43,8 +44,12 @@ int main(void) {
 	int ballX = 0, ballY = 0;
 	int ballSizeX = 10, ballSizeY = 10;
 
+	// Paddle movement speed
+	int paddleVel = 2;
+
 	// Core velocity is just the speed
 	int coreVel = 2;
+
 	// Velocity starts as down and towards the player
 	int ballVelX = -coreVel, ballVelY = coreVel;
 
@@ -66,30 +71,33 @@ int main(void) {
 
 		touchRead(&touchXY);
 
+		// Get inputs
+		scanKeys();
+
 		// Button inputs
 		if (leftUp()) {
-			playPosY -= 5;
+			playPosY -= paddleVel;
 		}
 
 		if (leftDown()) {
-			playPosY += 5;
+			playPosY += paddleVel;
 		}
 
 		if (rightUp()) {
-			opPosY -= 5;
+			opPosY -= paddleVel;
 		}
 
 		if (rightDown()) {
-			opPosY += 5;
+			opPosY += paddleVel;
 		}
 
-		// Prevent paddle resetting 
-		if (touchXY.py != 0)
-			playPosY = touchXY.py;
+		// // Prevent paddle resetting 
+		// if (touchXY.py != 0)
+		// 	playPosY = touchXY.py;
 
-		// Prevent paddle going offscreen
-		if (playPosY > SCR_MAX_Y - padSizeY)
-			playPosY = SCR_MAX_Y - padSizeY;
+		// // Prevent paddle going offscreen
+		// if (playPosY > SCR_MAX_Y - padSizeY)
+		// 	playPosY = SCR_MAX_Y - padSizeY;
 
 		// Draw player
 		glBoxFilled(playPosX, 0 + playPosY, playPosX + padSizeX, padSizeY + playPosY, 999999);
