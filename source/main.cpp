@@ -20,12 +20,6 @@ int main(void) {
 
 	videoSetMode(MODE_5_3D);
 
-	// Top screen will be grey
-	setBackdropColor(0xBDF7);
-
-	// Bottom screen will be black
-	setBackdropColorSub(0x000);
-
 	// initialize gl2d
 	glScreen2D();
 
