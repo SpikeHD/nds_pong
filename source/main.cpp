@@ -95,7 +95,7 @@ int main(void) {
 		}
 
 		if (ballX + ballSizeX >= SCR_MAX_X || (
-			between(ballX, opPosX, opPosX + padSizeX) &&
+			between(ballX + ballSizeX, opPosX, opPosX + padSizeX) &&
 			between(ballY + ballSizeY, opPosY, opPosY + padSizeY)
 		)) {
 			ballVelX = -coreVel;
