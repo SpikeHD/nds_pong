@@ -4,6 +4,9 @@
 #include <stdio.h>
 #include <string.h>
 
+// SimpleNFL namespace
+using namespace SNF;
+
 #define SCR_MAX_X 250
 #define SCR_MAX_Y 190
 
@@ -15,6 +18,22 @@ void Vblank() {
 
 bool between(int num, int min, int max) {
 	return min <= num && num <= max;
+}
+
+bool leftUp() {
+	return getKeys(KEY_UP, KeyPhase::held);
+}
+
+bool leftDown() {
+	return getKeys(KEY_DOWN, KeyPhase::held);
+}
+
+bool rightUp() {
+	return getKeys(KEY_X, KeyPhase::held);
+}
+
+bool rightDown() {
+	return getKeys(KEY_B, KeyPhase::held);
 }
 
 int main(void) {
@@ -47,12 +66,29 @@ int main(void) {
 
 		touchRead(&touchXY);
 
+		// Button inputs
+		if (leftUp()) {
+			playPosY -= 5;
+		}
+
+		if (leftDown()) {
+			playPosY += 5;
+		}
+
+		if (rightUp()) {
+			opPosY -= 5;
+		}
+
+		if (rightDown()) {
+			opPosY += 5;
+		}
+
 		// Prevent paddle resetting 
 		if (touchXY.py != 0)
 			playPosY = touchXY.py;
 
 		// Prevent paddle going offscreen
-		if (touchXY.py > SCR_MAX_Y - padSizeY)
+		if (playPosY > SCR_MAX_Y - padSizeY)
 			playPosY = SCR_MAX_Y - padSizeY;
 
 		// Draw player
