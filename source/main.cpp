@@ -1,5 +1,8 @@
 #include <nds.h>
+#include <gl2d.h>
+
 #include <stdio.h>
+#include <string.h>
 
 volatile int frame = 0;
 
@@ -8,22 +11,37 @@ void Vblank() {
 }
 
 int main(void) {
-	iprintf("This is a test!");
-
-	consoleDemoInit();
+	int playPosX = 0, playPosY = 0;
+	int padSizeX = 5, padSizeY = 60;
 
 	// Store touch position
 	touchPosition touchXY;
 	irqSet(IRQ_VBLANK, Vblank);
 
+	videoSetMode(MODE_5_3D);
+
+	// Top screen will be grey
+	setBackdropColor(0xBDF7);
+
+	// Bottom screen will be black
+	setBackdropColorSub(0x000);
+
+	// initialize gl2d
+	glScreen2D();
+
 	while(true) {
-		swiWaitForVBlank();
+		glBegin2D();
 
 		touchRead(&touchXY);
 
-		iprintf("Touch X: %04X\n", touchXY.rawx);
-		iprintf("Touch Y: %04X\n", touchXY.rawy);
-		
-		iprintf("Frame: %d\n", frame);
+		if (touchXY.py != 0)
+			playPosY = touchXY.py;
+
+		glBoxFilled(10, 0 + playPosY, 10 + padSizeX, padSizeY + playPosY, 999999);
+
+		glEnd2D();
+		glFlush(0);
+
+		swiWaitForVBlank();
 	}
 }
