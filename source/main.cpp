@@ -136,13 +136,19 @@ int main(void) {
 			opPosY += paddleVel;
 		}
 
-		// // Prevent paddle resetting 
-		// if (touchXY.py != 0)
-		// 	playPosY = touchXY.py;
+		// Prevent left paddle going offscreen
+		if (playPosY <= 0)
+			playPosY = 0;
 
-		// // Prevent paddle going offscreen
-		// if (playPosY > SCR_MAX_Y - PAD_SIZE_Y)
-		// 	playPosY = SCR_MAX_Y - PAD_SIZE_Y;
+		if (playPosY + PAD_SIZE_Y >= SCR_MAX_Y)
+			playPosY = SCR_MAX_Y - PAD_SIZE_Y;
+
+		// Prevent right paddle going offscreen
+		if (opPosY <= 0)
+			opPosY = 0;
+
+		if (opPosY + PAD_SIZE_Y >= SCR_MAX_Y)
+			opPosY = SCR_MAX_Y - PAD_SIZE_Y;
 
 		// Draw player
 		glBoxFilled(playPosX, 0 + playPosY, playPosX + PAD_SIZE_X, PAD_SIZE_Y + playPosY, 999999);
