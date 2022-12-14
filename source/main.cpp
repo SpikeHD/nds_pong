@@ -60,6 +60,7 @@ int digits(int i) {
 
 // Game
 int main(void) {
+	bool ai = false;
 	int playPosX = 10, playPosY = 0;
 	int opPosX = SCR_MAX_X - 10, opPosY = 0;
 	int ballX = 0, ballY = 0;
@@ -79,7 +80,7 @@ int main(void) {
 	int ballVelX = -coreVel, ballVelY = coreVel;
 
 	// Score and menu change flags, used to reprint console
-	bool scrChange = false, menuChange = true;
+	bool scrChange = true, menuChange = true;
 
 	// Store touch position
 	// touchPosition touchXY;
@@ -123,9 +124,8 @@ int main(void) {
 		}
 
 		if (menuChange) {
-			drawGameMenu(&menuConsole);
+			drawGameMenu(&menuConsole, coreVel, ai);
 		}
-
 
 		// touchRead(&touchXY);
 

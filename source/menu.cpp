@@ -13,8 +13,11 @@ void drawScore(PrintConsole *scoreConsole, int leftScore, int rightScore, int sp
 	iprintf(scorePrint.str().c_str());
 }
 
-void drawGameMenu(PrintConsole *menuConsole) {
+void drawGameMenu(PrintConsole *menuConsole, int ballSpeed, bool ai) {
 	consoleSelect(menuConsole);
 	consoleClear();
-	iprintf("This is the menu console");
+  
+  // Menu items
+  iprintf("          Speed    AI?\n\n");
+  iprintf("          < %d >    %s", ballSpeed, ai ? "on" : "off");
 }
