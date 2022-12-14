@@ -83,7 +83,7 @@ int main(void) {
 	bool scrChange = true, menuChange = true;
 
 	// Store touch position
-	// touchPosition touchXY;
+	touchPosition touchXY;
 	irqSet(IRQ_VBLANK, Vblank);
 
 	videoSetMode(MODE_5_3D);
@@ -125,9 +125,50 @@ int main(void) {
 
 		if (menuChange) {
 			drawGameMenu(&menuConsole, coreVel, ai);
+			menuChange= false;
 		}
 
-		// touchRead(&touchXY);
+		// If we don't have a menu change, we can wait for an input
+		if (!menuChange) {
+			touchRead(&touchXY);
+
+			// Speed decrease button bounds
+			int dcrX = 80, dcrY = SCR_MAX_Y / 2, dcrS = 10;
+
+			// Speed increase button bounds
+			int incrX = 90, incrY = SCR_MAX_Y / 2, incrS = 10;
+
+			// AI toggle bounds
+			int aiX = 150, aiY = SCR_MAX_Y / 2, aiS = 30;
+
+			// Decrease button check
+			if (
+				between(touchXY.px, dcrX, dcrX + dcrS) &&
+				between(touchXY.py, dcrY, dcrY + dcrS)
+			) {
+				coreVel--;
+				menuChange = true;
+			}
+
+			// Increase button check
+			if (
+				between(touchXY.px, incrX, incrX + incrS) &&
+				between(touchXY.py, incrY, incrY + incrS)
+			) {
+				coreVel++;
+				menuChange = true;
+			}
+
+			// AI toggle check
+			if (
+				between(touchXY.px, aiX, aiX + aiS) &&
+				between(touchXY.py, aiY, aiY + aiS)
+			) {
+				ai = !ai;
+				menuChange = true;
+			}
+
+		}
 
 		// Get inputs
 		scanKeys();
