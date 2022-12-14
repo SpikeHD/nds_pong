@@ -5,6 +5,9 @@
 #include <string>
 #include <sstream>
 
+// Custom stuff
+#include "menu.h"
+
 const int SCR_MAX_X = 256;
 const int SCR_MAX_Y = 192;
 const int PAD_SIZE_X = 5;
@@ -12,6 +15,7 @@ const int PAD_SIZE_Y = 60;
 const int BALL_SIZE = 10;
 const int CONSOLE_WIDTH = SCR_MAX_X / 2;
 const int CONSOLE_T_WIDTH = 32;
+const int CONSOLE_T_HEIGHT = 20;
 
 volatile int frame = 0;
 
@@ -75,7 +79,7 @@ int main(void) {
 	int ballVelX = -coreVel, ballVelY = coreVel;
 
 	// Score and menu change flags, used to reprint console
-	bool scrChange = false, menuChange = false;
+	bool scrChange = false, menuChange = true;
 
 	// Store touch position
 	// touchPosition touchXY;
@@ -92,10 +96,10 @@ int main(void) {
 	consoleInit(&menuConsole, 1, BgType_Text4bpp, BgSize_T_256x256, 31, 0, false, true);
 	
 	// Draws right at the top of the bottom screen
-	consoleSetWindow(&scoreConsole, SCR_MAX_X / 4, 0, CONSOLE_WIDTH, 16);
+	consoleSetWindow(&scoreConsole, CONSOLE_T_WIDTH / 6, 0, CONSOLE_T_WIDTH / 1.5, 1);
 
 	// Draws in the middle of the bottom screen
-	consoleSetWindow(&menuConsole, SCR_MAX_X / 4, SCR_MAX_Y / 2, CONSOLE_WIDTH, 16);
+	consoleSetWindow(&menuConsole, 0, CONSOLE_T_HEIGHT / 2, CONSOLE_T_WIDTH, 4);
 
 	// initialize gl2d
 	glScreen2D();
@@ -107,27 +111,19 @@ int main(void) {
 	// Game loop
 	while(true) {
 		int dig = digits(leftScore) + digits(rightScore);
-		scrSpc = CONSOLE_T_WIDTH - dig;
+		scrSpc = (CONSOLE_T_WIDTH / 1.5) - dig;
 
 		glBegin2D();
 
 		// If the score has changed, trigger a referesh
 		if (scrChange) {
-			consoleSelect(&scoreConsole);
-			consoleClear();
-
-			std::stringstream scorePrint;
-			scorePrint << leftScore << std::string(scrSpc, ' ') << rightScore;
-
-			iprintf(scorePrint.str().c_str());
+			drawScore(&scoreConsole, leftScore, rightScore, scrSpc);
 
 			scrChange = false;
 		}
 
 		if (menuChange) {
-			consoleSelect(&menuConsole);
-			consoleClear();
-			iprintf("This is the menu console");
+			drawGameMenu(&menuConsole);
 		}
 
 
