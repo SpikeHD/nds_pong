@@ -10,6 +10,7 @@
 #include "menu.h"
 #include "controls.h"
 #include "number_util.h"
+#include "ai.h"
 
 volatile int frame = 0;
 
@@ -37,7 +38,7 @@ int main(void) {
 	int paddleVel = 2;
 
 	// Core velocity is just the speed
-	int coreVel = 2;
+	int coreVel = 3;
 
 	// Velocity starts as down and towards the player
 	int ballVelX = -coreVel, ballVelY = coreVel;
@@ -128,13 +129,20 @@ int main(void) {
 			playPosY += paddleVel;
 		}
 
-		if (rightUp()) {
-			opPosY -= paddleVel;
+		// Control AI if AI is enabled, otherwise enable second player
+		if (!ai) {
+			if (rightUp()) {
+				opPosY -= paddleVel;
+			}
+
+			if (rightDown()) {
+				opPosY += paddleVel;
+			}
+		} else {
+			// aiMove() returns either 1 or -1, so we know what direction to move by multiplying paddle velocity by the return value
+			opPosY = opPosY + (paddleVel * aiMove(opPosY, ballY));
 		}
 
-		if (rightDown()) {
-			opPosY += paddleVel;
-		}
 
 		// Prevent left paddle going offscreen
 		if (playPosY <= 0)
