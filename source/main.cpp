@@ -26,6 +26,10 @@ int main(void) {
 	int leftScore = 0;
 	int rightScore = 0;
 
+	// This is used to store what frame we changed an option, so that we can wait some amount of frames before
+	// allowing another option change
+	int changeFrm = 0;
+
 	// Spacing between score prints
 	int scrSpc = CONSOLE_WIDTH - 2;
 
@@ -85,14 +89,24 @@ int main(void) {
 		if (menuChange) {
 			drawGameMenu(&menuConsole, coreVel, ai);
 			menuChange = false;
+
+			changeFrm = frame;
 		}
 
-		// If we don't have a menu change, we can wait for an input
-		if (!menuChange) {
+		// Reset the frame we got our last option change from, after a certain amount hafe passed
+		if (frame >= changeFrm + 20) {
+			changeFrm = 0;
+		}
+
+		// If we don't have a menu change, and it's been enough frames, we can wait for an input
+		if (!menuChange && changeFrm == 0) {
 			touchRead(&touchXY);
 			menuChange = menuActions(touchXY, coreVel, ai);
 
 			if (coreVel < 0) coreVel = 0;
+
+			// Only allow up to 9
+			if (coreVel > 9) coreVel = 9;
 
 			bool xVelNeg = ballVelX < 0;
 			bool yVelNeg = ballVelY < 0;
