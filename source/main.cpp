@@ -6,56 +6,15 @@
 #include <sstream>
 
 // Custom stuff
+#include "consts.h"
 #include "menu.h"
-
-const int SCR_MAX_X = 256;
-const int SCR_MAX_Y = 192;
-const int PAD_SIZE_X = 5;
-const int PAD_SIZE_Y = 60;
-const int BALL_SIZE = 10;
-const int CONSOLE_WIDTH = SCR_MAX_X / 2;
-const int CONSOLE_T_WIDTH = 32;
-const int CONSOLE_T_HEIGHT = 20;
+#include "controls.h"
+#include "number_util.h"
 
 volatile int frame = 0;
 
 void Vblank() {
 	frame++;
-}
-
-bool between(int num, int min, int max) {
-	return min <= num && num <= max;
-}
-
-u32 kdr() {
-	return keysHeld();
-}
-
-/* Controls section */
-bool leftUp() {
-	return kdr() & KEY_UP;
-}
-
-bool leftDown() {
-	return kdr() & KEY_DOWN;
-}
-
-bool rightUp() {
-	return kdr() & KEY_X;
-}
-
-bool rightDown() {
-	return kdr() & KEY_Y;
-}
-
-// https://www.tutorialspoint.com/determining-how-many-digits-there-are-in-an-integer-in-cplusplus
-int digits(int i) {
-	int count = 1;
-   while(i > 9) {
-      i = i / 10;
-      count++;
-   }
-   return count;
 }
 
 // Game
@@ -125,49 +84,22 @@ int main(void) {
 
 		if (menuChange) {
 			drawGameMenu(&menuConsole, coreVel, ai);
-			menuChange= false;
+			menuChange = false;
 		}
 
 		// If we don't have a menu change, we can wait for an input
 		if (!menuChange) {
 			touchRead(&touchXY);
+			menuChange = menuActions(touchXY, coreVel, ai);
 
-			// Speed decrease button bounds
-			int dcrX = 80, dcrY = SCR_MAX_Y / 2, dcrS = 10;
+			if (coreVel < 0) coreVel = 0;
 
-			// Speed increase button bounds
-			int incrX = 90, incrY = SCR_MAX_Y / 2, incrS = 10;
+			bool xVelNeg = ballVelX < 0;
+			bool yVelNeg = ballVelY < 0;
 
-			// AI toggle bounds
-			int aiX = 150, aiY = SCR_MAX_Y / 2, aiS = 30;
-
-			// Decrease button check
-			if (
-				between(touchXY.px, dcrX, dcrX + dcrS) &&
-				between(touchXY.py, dcrY, dcrY + dcrS)
-			) {
-				coreVel--;
-				menuChange = true;
-			}
-
-			// Increase button check
-			if (
-				between(touchXY.px, incrX, incrX + incrS) &&
-				between(touchXY.py, incrY, incrY + incrS)
-			) {
-				coreVel++;
-				menuChange = true;
-			}
-
-			// AI toggle check
-			if (
-				between(touchXY.px, aiX, aiX + aiS) &&
-				between(touchXY.py, aiY, aiY + aiS)
-			) {
-				ai = !ai;
-				menuChange = true;
-			}
-
+			// Reassign the coreVel in case of change within menu
+			ballVelX = xVelNeg ? -coreVel : coreVel;
+			ballVelY = yVelNeg ? -coreVel : coreVel;
 		}
 
 		// Get inputs
