@@ -4,8 +4,11 @@
 #include <stdio.h>
 #include <string.h>
 
-#define SCR_MAX_X 250
-#define SCR_MAX_Y 190
+const int SCR_MAX_X = 256;
+const int SCR_MAX_Y = 192;
+const int PAD_SIZE_X = 5;
+const int PAD_SIZE_Y = 60;
+const int BALL_SIZE = 10;
 
 volatile int frame = 0;
 
@@ -42,9 +45,7 @@ bool rightDown() {
 int main(void) {
 	int playPosX = 10, playPosY = 0;
 	int opPosX = SCR_MAX_X - 10, opPosY = 0;
-	int padSizeX = 5, padSizeY = 60;
 	int ballX = 0, ballY = 0;
-	int ballSizeX = 10, ballSizeY = 10;
 
 	// Paddle movement speed
 	int paddleVel = 2;
@@ -99,17 +100,17 @@ int main(void) {
 		// 	playPosY = touchXY.py;
 
 		// // Prevent paddle going offscreen
-		// if (playPosY > SCR_MAX_Y - padSizeY)
-		// 	playPosY = SCR_MAX_Y - padSizeY;
+		// if (playPosY > SCR_MAX_Y - PAD_SIZE_Y)
+		// 	playPosY = SCR_MAX_Y - PAD_SIZE_Y;
 
 		// Draw player
-		glBoxFilled(playPosX, 0 + playPosY, playPosX + padSizeX, padSizeY + playPosY, 999999);
+		glBoxFilled(playPosX, 0 + playPosY, playPosX + PAD_SIZE_X, PAD_SIZE_Y + playPosY, 999999);
 
 		// Draw opponent
-		glBoxFilled(opPosX, 0 + opPosY, opPosX + padSizeX, padSizeY + opPosY, 999999);
+		glBoxFilled(opPosX, 0 + opPosY, opPosX + PAD_SIZE_X, PAD_SIZE_Y + opPosY, 999999);
 
 		// Draw ball
-		glBoxFilled(ballX, ballY, ballX + ballSizeX, ballY + ballSizeY, 999999);
+		glBoxFilled(ballX, ballY, ballX + BALL_SIZE, ballY + BALL_SIZE, 999999);
 
 		// Update ball position
 		ballX += ballVelX;
@@ -128,22 +129,22 @@ int main(void) {
 			ballVelY = coreVel;
 		}
 
-		if (ballY + ballSizeY >= SCR_MAX_Y) {
+		if (ballY + BALL_SIZE >= SCR_MAX_Y) {
 			// Positive coreVel, since we bounce off the bottom
 			ballVelY = -coreVel;
 		}
 
 		// We technically don't need screen bound bouncing on the X axis, since the paddles will be doing that, but it's good for testing
 		if (ballX <= 0 || (
-			between(ballX, playPosX, playPosX + padSizeX) &&
-			between(ballY + ballSizeY, playPosY, playPosY + padSizeY)
+			between(ballX, playPosX, playPosX + PAD_SIZE_X) &&
+			between(ballY + BALL_SIZE, playPosY, playPosY + PAD_SIZE_Y)
 		)) {
 			ballVelX = coreVel;
 		}
 
-		if (ballX + ballSizeX >= SCR_MAX_X || (
-			between(ballX + ballSizeX, opPosX, opPosX + padSizeX) &&
-			between(ballY + ballSizeY, opPosY, opPosY + padSizeY)
+		if (ballX + BALL_SIZE >= SCR_MAX_X || (
+			between(ballX + BALL_SIZE, opPosX, opPosX + PAD_SIZE_X) &&
+			between(ballY + BALL_SIZE, opPosY, opPosY + PAD_SIZE_Y)
 		)) {
 			ballVelX = -coreVel;
 		}
