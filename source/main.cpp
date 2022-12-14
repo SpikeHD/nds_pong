@@ -46,6 +46,8 @@ int main(void) {
 	int playPosX = 10, playPosY = 0;
 	int opPosX = SCR_MAX_X - 10, opPosY = 0;
 	int ballX = 0, ballY = 0;
+	int leftScore = 0;
+	int rightScore = 0;
 
 	// Paddle movement speed
 	int paddleVel = 2;
@@ -61,6 +63,8 @@ int main(void) {
 	irqSet(IRQ_VBLANK, Vblank);
 
 	videoSetMode(MODE_5_3D);
+	videoSetModeSub(MODE_0_2D);
+
 
 	// initialize gl2d
 	glScreen2D();
@@ -118,9 +122,17 @@ int main(void) {
 
 		// Win conditions
 		if (ballX <= 0) {
-			// Player loses
-		} else if (ballX >= SCR_MAX_X) {
-			// Player wins!!
+			rightScore++;
+
+			// Reset ball
+			ballX = SCR_MAX_X / 2;
+			ballY = SCR_MAX_Y / 2;
+		} else if (ballX + BALL_SIZE >= SCR_MAX_X) {
+			leftScore++;
+			
+			// Reset ball
+			ballX = SCR_MAX_X / 2;
+			ballY = SCR_MAX_Y / 2;
 		}
 
 		// Ball bouncing
