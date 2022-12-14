@@ -2,6 +2,7 @@
 #include <gl2d.h>
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string>
 #include <sstream>
 
@@ -16,6 +17,18 @@ volatile int frame = 0;
 
 void Vblank() {
 	frame++;
+}
+
+void resetBall(int &ballX, int &ballY, int &ballVelX, int &ballVelY) {
+	bool xFlip = rand()%2;
+	bool yFlip = rand()%2;
+
+	ballVelX = xFlip ? -ballVelX : ballVelX;
+	ballVelY = yFlip ? -ballVelY : ballVelY;
+
+	// Start the ball at the middle of the screen
+	ballX = SCR_MAX_X / 2;
+	ballY = SCR_MAX_Y / 2;
 }
 
 // Game
@@ -69,9 +82,7 @@ int main(void) {
 	// initialize gl2d
 	glScreen2D();
 
-	// Start the ball at the middle of the screen
-	ballX = SCR_MAX_X / 2;
-	ballY = SCR_MAX_Y / 2;
+	resetBall(ballX, ballY, ballVelX, ballVelY);
 
 	// Game loop
 	while(true) {
@@ -175,17 +186,13 @@ int main(void) {
 		if (ballX <= 0) {
 			rightScore++;
 
-			// Reset ball
-			ballX = SCR_MAX_X / 2;
-			ballY = SCR_MAX_Y / 2;
+			resetBall(ballX, ballY, ballVelX, ballVelY);
 
 			scrChange = true;
 		} else if (ballX + BALL_SIZE >= SCR_MAX_X) {
 			leftScore++;
 			
-			// Reset ball
-			ballX = SCR_MAX_X / 2;
-			ballY = SCR_MAX_Y / 2;
+			resetBall(ballX, ballY, ballVelX, ballVelY);
 
 			scrChange = true;
 		}
