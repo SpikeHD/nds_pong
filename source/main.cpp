@@ -19,7 +19,7 @@ void Vblank() {
 	frame++;
 }
 
-void resetBall(int &ballX, int &ballY, int &ballVelX, int &ballVelY) {
+void resetBall(int &ballX, int &ballY, int &ballVelX, int &ballVelY, int &bpf) {
 	bool xFlip = rand()%2;
 	bool yFlip = rand()%2;
 
@@ -29,6 +29,8 @@ void resetBall(int &ballX, int &ballY, int &ballVelX, int &ballVelY) {
 	// Start the ball at the middle of the screen
 	ballX = SCR_MAX_X / 2;
 	ballY = SCR_MAX_Y / 2;
+
+	bpf = frame;
 }
 
 // Game
@@ -43,6 +45,9 @@ int main(void) {
 	// This is used to store what frame we changed an option, so that we can wait some amount of frames before
 	// allowing another option change
 	int changeFrm = 0;
+
+	// Pause frame for the ball
+	int ballPauseFrame = 0;
 
 	// Spacing between score prints
 	int scrSpc = CONSOLE_WIDTH - 2;
@@ -82,7 +87,7 @@ int main(void) {
 	// initialize gl2d
 	glScreen2D();
 
-	resetBall(ballX, ballY, ballVelX, ballVelY);
+	resetBall(ballX, ballY, ballVelX, ballVelY, ballPauseFrame);
 
 	// Game loop
 	while(true) {
@@ -108,6 +113,11 @@ int main(void) {
 		// Reset the frame we got our last option change from, after a certain amount hafe passed
 		if (frame >= changeFrm + 20) {
 			changeFrm = 0;
+		}
+
+		// Same check for ball pause frame
+		if (frame >= ballPauseFrame + 20) {
+			ballPauseFrame = 0;
 		}
 
 		// If we don't have a menu change, and it's been enough frames, we can wait for an input
@@ -178,21 +188,23 @@ int main(void) {
 		// Draw ball
 		glBoxFilled(ballX, ballY, ballX + BALL_SIZE, ballY + BALL_SIZE, 999999);
 
-		// Update ball position
-		ballX += ballVelX;
-		ballY += ballVelY;
+		if (ballPauseFrame == 0) {
+			// Update ball position
+			ballX += ballVelX;
+			ballY += ballVelY;
+		}
 
 		// Win conditions
 		if (ballX <= 0) {
 			rightScore++;
 
-			resetBall(ballX, ballY, ballVelX, ballVelY);
+			resetBall(ballX, ballY, ballVelX, ballVelY, ballPauseFrame);
 
 			scrChange = true;
 		} else if (ballX + BALL_SIZE >= SCR_MAX_X) {
 			leftScore++;
 			
-			resetBall(ballX, ballY, ballVelX, ballVelY);
+			resetBall(ballX, ballY, ballVelX, ballVelY, ballPauseFrame);
 
 			scrChange = true;
 		}
