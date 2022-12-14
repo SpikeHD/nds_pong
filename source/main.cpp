@@ -2,13 +2,16 @@
 #include <gl2d.h>
 
 #include <stdio.h>
-#include <string.h>
+#include <string>
+#include <sstream>
 
 const int SCR_MAX_X = 256;
 const int SCR_MAX_Y = 192;
 const int PAD_SIZE_X = 5;
 const int PAD_SIZE_Y = 60;
 const int BALL_SIZE = 10;
+const int CONSOLE_WIDTH = SCR_MAX_X / 2;
+const int CONSOLE_T_WIDTH = 32;
 
 volatile int frame = 0;
 
@@ -41,6 +44,16 @@ bool rightDown() {
 	return kdr() & KEY_Y;
 }
 
+// https://www.tutorialspoint.com/determining-how-many-digits-there-are-in-an-integer-in-cplusplus
+int digits(int i) {
+	int count = 1;
+   while(i > 9) {
+      i = i / 10;
+      count++;
+   }
+   return count;
+}
+
 // Game
 int main(void) {
 	int playPosX = 10, playPosY = 0;
@@ -48,6 +61,9 @@ int main(void) {
 	int ballX = 0, ballY = 0;
 	int leftScore = 0;
 	int rightScore = 0;
+
+	// Spacing between score prints
+	int scrSpc = CONSOLE_WIDTH - 2;
 
 	// Paddle movement speed
 	int paddleVel = 2;
@@ -58,6 +74,9 @@ int main(void) {
 	// Velocity starts as down and towards the player
 	int ballVelX = -coreVel, ballVelY = coreVel;
 
+	// Score and menu change flags, used to reprint console
+	bool scrChange = false, menuChange = false;
+
 	// Store touch position
 	// touchPosition touchXY;
 	irqSet(IRQ_VBLANK, Vblank);
@@ -65,6 +84,18 @@ int main(void) {
 	videoSetMode(MODE_5_3D);
 	videoSetModeSub(MODE_0_2D);
 
+	// Init consoles
+	PrintConsole scoreConsole;
+	consoleInit(&scoreConsole, 0, BgType_Text4bpp, BgSize_T_256x256, 31, 0, false, true);
+
+	PrintConsole menuConsole;
+	consoleInit(&menuConsole, 1, BgType_Text4bpp, BgSize_T_256x256, 31, 0, false, true);
+	
+	// Draws right at the top of the bottom screen
+	consoleSetWindow(&scoreConsole, SCR_MAX_X / 4, 0, CONSOLE_WIDTH, 16);
+
+	// Draws in the middle of the bottom screen
+	consoleSetWindow(&menuConsole, SCR_MAX_X / 4, SCR_MAX_Y / 2, CONSOLE_WIDTH, 16);
 
 	// initialize gl2d
 	glScreen2D();
@@ -75,7 +106,30 @@ int main(void) {
 
 	// Game loop
 	while(true) {
+		int dig = digits(leftScore) + digits(rightScore);
+		scrSpc = CONSOLE_T_WIDTH - dig;
+
 		glBegin2D();
+
+		// If the score has changed, trigger a referesh
+		if (scrChange) {
+			consoleSelect(&scoreConsole);
+			consoleClear();
+
+			std::stringstream scorePrint;
+			scorePrint << leftScore << std::string(scrSpc, ' ') << rightScore;
+
+			iprintf(scorePrint.str().c_str());
+
+			scrChange = false;
+		}
+
+		if (menuChange) {
+			consoleSelect(&menuConsole);
+			consoleClear();
+			iprintf("This is the menu console");
+		}
+
 
 		// touchRead(&touchXY);
 
@@ -127,12 +181,16 @@ int main(void) {
 			// Reset ball
 			ballX = SCR_MAX_X / 2;
 			ballY = SCR_MAX_Y / 2;
+
+			scrChange = true;
 		} else if (ballX + BALL_SIZE >= SCR_MAX_X) {
 			leftScore++;
 			
 			// Reset ball
 			ballX = SCR_MAX_X / 2;
 			ballY = SCR_MAX_Y / 2;
+
+			scrChange = true;
 		}
 
 		// Ball bouncing
